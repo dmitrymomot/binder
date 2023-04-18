@@ -7,10 +7,19 @@ import "github.com/gorilla/schema"
 // it caches meta-data about structs, and an instance can be shared safely.
 var formDecoder = schema.NewDecoder()
 
-// Initialize the form decoder.
+// Default query decoder for binding query data
+// It uses the gorilla/schema package.
+// it caches meta-data about structs, and an instance can be shared safely.
+var queryDecoder = schema.NewDecoder()
+
+// Initialize the form & query decoders.
 // It ignores unknown keys and sets zero values for empty fields.
 func init() {
 	formDecoder.IgnoreUnknownKeys(true)
 	formDecoder.ZeroEmpty(true)
 	formDecoder.SetAliasTag(TagForm)
+
+	queryDecoder.IgnoreUnknownKeys(true)
+	queryDecoder.ZeroEmpty(true)
+	queryDecoder.SetAliasTag(TagQuery)
 }

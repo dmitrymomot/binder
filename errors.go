@@ -12,4 +12,7 @@ var (
 	ErrGetFile            = errors.New("failed to get file from request")
 	ErrReadFile           = errors.New("failed to read file from request")
 	ErrGetFileMimeType    = errors.New("failed to get file mime type")
+	ErrEmptyQuery         = errors.New("empty query string")
+	ErrDecodeQuery        = errors.New("failed to decode request query")
+	ErrInvalidInput       = errors.New("invalid input")
 )
