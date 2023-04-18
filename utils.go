@@ -39,3 +39,25 @@ func isPointer(v interface{}) bool {
 	t := reflect.TypeOf(v)
 	return t.Kind() == reflect.Ptr && t.Elem().Kind() == reflect.Struct
 }
+
+// isFileData checks if the struct type is a file
+func isFileData(v interface{}) bool {
+	if v == nil {
+		return false
+	}
+	if _, ok := v.(*FileData); ok {
+		return true
+	}
+	return false
+}
+
+// isSliceOfFiles checks if the struct type is a slice of files
+func isSliceOfFileData(v interface{}) bool {
+	if v == nil {
+		return false
+	}
+	if _, ok := v.([]*FileData); ok {
+		return true
+	}
+	return false
+}

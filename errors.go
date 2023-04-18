@@ -15,4 +15,6 @@ var (
 	ErrEmptyQuery         = errors.New("empty query string")
 	ErrDecodeQuery        = errors.New("failed to decode request query")
 	ErrInvalidInput       = errors.New("invalid input")
+	ErrEmptyRequestData   = errors.New("empty request data")
+	ErrUnsupportedType    = errors.New("unsupported type")
 )

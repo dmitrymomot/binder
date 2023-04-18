@@ -59,22 +59,6 @@ func GetFileData(req *http.Request, fieldName string) (*FileData, error) {
 	}, nil
 }
 
-// GetFileMimeType returns the MIME type of a file using the
-// github.com/gabriel-vasile/mimetype package.
-func GetFileMimeType(input []byte) (string, error) {
-	if input == nil {
-		return "", fmt.Errorf("%w: input is nil", ErrGetFileMimeType)
-	}
-
-	mtype := mimetype.Detect(input)
-	if mtype == nil {
-		return "", fmt.Errorf("%w: unknown MIME type", ErrGetFileMimeType)
-	}
-
-	parts := strings.Split(mtype.String(), ";")
-	return parts[0], nil
-}
-
 // GetFileDataFromMultipartFileHeader extracts file data from a multipart file header.
 func GetFileDataFromMultipartFileHeader(header *multipart.FileHeader) (*FileData, error) {
 	// Open the file.
@@ -103,4 +87,20 @@ func GetFileDataFromMultipartFileHeader(header *multipart.FileHeader) (*FileData
 		MimeType: mime,
 		Data:     data,
 	}, nil
+}
+
+// GetFileMimeType returns the MIME type of a file using the
+// github.com/gabriel-vasile/mimetype package.
+func GetFileMimeType(input []byte) (string, error) {
+	if input == nil {
+		return "", fmt.Errorf("%w: input is nil", ErrGetFileMimeType)
+	}
+
+	mtype := mimetype.Detect(input)
+	if mtype == nil {
+		return "", fmt.Errorf("%w: unknown MIME type", ErrGetFileMimeType)
+	}
+
+	parts := strings.Split(mtype.String(), ";")
+	return parts[0], nil
 }
