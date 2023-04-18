@@ -1,6 +1,6 @@
 module github.com/dmitrymomot/binder
 
-go 1.20
+go 1.19
 
 require (
 	github.com/gabriel-vasile/mimetype v1.4.2
