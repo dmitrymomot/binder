@@ -10,6 +10,14 @@ HTTP request data binder.
 [![Go Reference](https://pkg.go.dev/badge/github.com/dmitrymomot/binder.svg)](https://pkg.go.dev/github.com/dmitrymomot/binder)
 [![License](https://img.shields.io/github/license/dmitrymomot/binder)](https://github.com/dmitrymomot/binder/blob/main/LICENSE)
 
+## Features
+
+- [x] Bind query string parameters to struct fields
+- [x] Bind form values to struct fields
+- [x] Bind JSON body to struct fields
+- [x] Get file from multipart form
+- [ ] Bind multipart form values to struct fields
+
 ## Installation
 
 ```bash
