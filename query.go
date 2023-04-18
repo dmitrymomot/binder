@@ -3,17 +3,21 @@ package binder
 import (
 	"fmt"
 	"net/http"
-	"reflect"
 )
 
-// BindQuery binds the passed obj pointer to the request.
+// BindQuery binds the passed v pointer to the request.
 // It uses the query string for binding.
-// `obj` param should be a pointer to a struct with `query“ tags.
+// `v` param should be a pointer to a struct with `query“ tags.
 // Implements the binder.BinderFunc interface.
-func BindQuery(r *http.Request, obj interface{}) error {
+func BindQuery(r *http.Request, v interface{}) error {
 	// Check if the request method is GET, HEAD or DELETE
 	if !isGetHeadOptionDelete(r) {
 		return fmt.Errorf("%w: %s", ErrInvalidMethod, r.Method)
+	}
+
+	// Validate v pointer before decoding query into it
+	if !isPointer(v) {
+		return fmt.Errorf("%w: v must be a pointer to a struct", ErrInvalidInput)
 	}
 
 	// Check if the request query is empty
@@ -21,14 +25,8 @@ func BindQuery(r *http.Request, obj interface{}) error {
 		return ErrEmptyQuery
 	}
 
-	// Validate obj pointer before decoding query into it
-	t := reflect.TypeOf(obj)
-	if t.Kind() != reflect.Ptr || t.Elem().Kind() != reflect.Struct {
-		return fmt.Errorf("%w: obj must be a pointer to a struct", ErrInvalidInput)
-	}
-
-	// Decode the request query into the obj pointer and handle decoding errors
-	if err := queryDecoder.Decode(obj, r.URL.Query()); err != nil {
+	// Decode the request query into the v pointer and handle decoding errors
+	if err := queryDecoder.Decode(v, r.URL.Query()); err != nil {
 		return fmt.Errorf("%w: %s", ErrDecodeQuery, err.Error())
 	}
 

@@ -1,7 +1,6 @@
 package binder_test
 
 import (
-	"context"
 	"errors"
 	"net/http"
 	"testing"
@@ -10,6 +9,12 @@ import (
 )
 
 func TestBindJSON(t *testing.T) {
+	// A test struct with json tags
+	type RequestBody struct {
+		FieldOne string `json:"field_one"`
+		FieldTwo int    `json:"field_two"`
+	}
+
 	// Initialize a dummy request payload
 	payload := map[string]interface{}{
 		"field_one": "value",
@@ -23,8 +28,7 @@ func TestBindJSON(t *testing.T) {
 			t.Errorf("unexpected error: %s", err.Error())
 		}
 
-		err = binder.BindJSON(req.WithContext(context.Background()), nil)
-		if err == nil || !errors.Is(err, binder.ErrInvalidMethod) {
+		if err := binder.BindJSON(req, nil); err == nil || !errors.Is(err, binder.ErrInvalidMethod) {
 			t.Errorf("BindJSON() error = %v, wantErr %v", err, binder.ErrInvalidMethod)
 		}
 	})
@@ -38,9 +42,23 @@ func TestBindJSON(t *testing.T) {
 			t.Errorf("unexpected error: %s", err.Error())
 		}
 
-		err = binder.BindJSON(req.WithContext(context.Background()), nil)
-		if err == nil || !errors.Is(err, binder.ErrInvalidContentType) {
+		if err := binder.BindJSON(req, nil); err == nil || !errors.Is(err, binder.ErrInvalidContentType) {
 			t.Errorf("BindJSON() error = %v, wantErr %v", err, binder.ErrInvalidContentType)
+		}
+	})
+
+	// Test the scenario where the request body is empty
+	t.Run("invalid input", func(t *testing.T) {
+		req, err := newJSONRequest(http.MethodPost, "/", nil, map[string]string{
+			"Content-Type": "application/json",
+		})
+		if err != nil {
+			t.Errorf("unexpected error: %s", err.Error())
+		}
+
+		var invalidValue interface{}
+		if err := binder.BindJSON(req, &invalidValue); err == nil || !errors.Is(err, binder.ErrInvalidInput) {
+			t.Errorf("BindJSON() error = %v, wantErr %v", err, binder.ErrInvalidInput)
 		}
 	})
 
@@ -53,8 +71,7 @@ func TestBindJSON(t *testing.T) {
 			t.Errorf("unexpected error: %s", err.Error())
 		}
 
-		err = binder.BindJSON(req.WithContext(context.Background()), nil)
-		if err == nil || !errors.Is(err, binder.ErrEmptyBody) {
+		if err := binder.BindJSON(req, &RequestBody{}); err == nil || !errors.Is(err, binder.ErrEmptyBody) {
 			t.Errorf("BindJSON() error = %v, wantErr %v", err, binder.ErrEmptyBody)
 		}
 	})
@@ -69,8 +86,7 @@ func TestBindJSON(t *testing.T) {
 			t.Errorf("unexpected error: %s", err.Error())
 		}
 
-		err = binder.BindJSON(req.WithContext(context.Background()), "invalid object")
-		if err == nil {
+		if err := binder.BindJSON(req, "invalid object"); err == nil {
 			t.Error("BindJSON() error = nil, wantErr non-nil")
 		}
 	})
@@ -85,17 +101,11 @@ func TestBindJSON(t *testing.T) {
 			t.Errorf("unexpected error: %s", err.Error())
 		}
 
-		// A test struct with json tags
-		type RequestBody struct {
-			FieldOne string `json:"field_one"`
-			FieldTwo int    `json:"field_two"`
-		}
 		// Create an empty struct to be used as the obj parameter in the BindJSON call
 		obj := &RequestBody{}
 
 		// Call the BindJSON function to populate the obj struct with the request data
-		err = binder.BindJSON(req.WithContext(context.Background()), obj)
-		if err != nil {
+		if err := binder.BindJSON(req, obj); err != nil {
 			t.Errorf("BindJSON() error = %v, wantErr nil", err)
 		}
 

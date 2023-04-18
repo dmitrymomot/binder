@@ -3,6 +3,7 @@ package binder
 import (
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"strings"
 
@@ -72,4 +73,34 @@ func GetFileMimeType(input []byte) (string, error) {
 
 	parts := strings.Split(mtype.String(), ";")
 	return parts[0], nil
+}
+
+// GetFileDataFromMultipartFileHeader extracts file data from a multipart file header.
+func GetFileDataFromMultipartFileHeader(header *multipart.FileHeader) (*FileData, error) {
+	// Open the file.
+	file, err := header.Open()
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrGetFile, err.Error())
+	}
+	defer file.Close()
+
+	// Read the file data into memory.
+	data, err := io.ReadAll(file)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrReadFile, err.Error())
+	}
+
+	// Get the MIME type of the file.
+	mime, err := GetFileMimeType(data)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the file data.
+	return &FileData{
+		Name:     header.Filename,
+		Size:     header.Size,
+		MimeType: mime,
+		Data:     data,
+	}, nil
 }
