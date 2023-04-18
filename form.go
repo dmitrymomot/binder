@@ -3,7 +3,6 @@ package binder
 import (
 	"fmt"
 	"net/http"
-	"strings"
 )
 
 // BindForm binds the passed obj pointer to the request.
@@ -12,12 +11,12 @@ import (
 // Implements the binder.BinderFunc interface.
 func BindForm(r *http.Request, obj interface{}) error {
 	// Check if the request method is POST, PUT or PATCH
-	if r.Method != http.MethodPost && r.Method != http.MethodPut && r.Method != http.MethodPatch {
+	if !isPostPutPatch(r) {
 		return fmt.Errorf("%w: %s", ErrInvalidMethod, r.Method)
 	}
 
 	// Check if the request content type is form urlencoded
-	if !strings.Contains(r.Header.Get("Content-Type"), "application/x-www-form-urlencoded") {
+	if !isFormURLEncoded(r) {
 		return fmt.Errorf("%w: %s", ErrInvalidContentType, r.Header.Get("Content-Type"))
 	}
 

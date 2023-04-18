@@ -12,9 +12,7 @@ import (
 // Implements the binder.BinderFunc interface.
 func BindQuery(r *http.Request, obj interface{}) error {
 	// Check if the request method is GET, HEAD or DELETE
-	switch r.Method {
-	case http.MethodGet, http.MethodHead, http.MethodDelete:
-	default:
+	if !isGetHeadOptionDelete(r) {
 		return fmt.Errorf("%w: %s", ErrInvalidMethod, r.Method)
 	}
 
