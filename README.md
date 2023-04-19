@@ -16,7 +16,28 @@ HTTP request data binder.
 - [x] Bind form values to struct fields
 - [x] Bind JSON body to struct fields
 - [x] Get file from multipart form
-- [ ] Bind multipart form values to struct fields
+- [x] Bind multipart form values to struct fields (limited support, see [supported types](#supported-types))
+- [ ] Binder interface implementation
+
+### Supported types
+
+Supported types for binding from multipart form:
+
+- [x] `string`
+- [x] `int`, `int8`, `int16`, `int32`, `int64`
+- [x] `uint`, `uint8`, `uint16`, `uint32`, `uint64`
+- [x] `float32`, `float64`
+- [x] `bool`
+- [x] `map[string]interface{}`
+- [x] `*binder.File` & `binder.File`
+- [ ] `time.Time`
+- [ ] `[]string`
+- [ ] `[]int`, `[]int8`, `[]int16`, `[]int32`, `[]int64`
+- [ ] `[]uint`, `[]uint8`, `[]uint16`, `[]uint32`, `[]uint64`
+- [ ] `[]float32`, `[]float64`
+- [ ] `[]bool`
+- [ ] `[]*binder.File` & `[]binder.File`
+- [ ] `[]time.Time`
 
 ## Installation
 
