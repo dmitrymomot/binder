@@ -89,7 +89,7 @@ func newFormRequest(method, endpoint string, body map[string]interface{}, header
 func newMultipartRequest(method, url string, body map[string]interface{}, headers map[string]string) (*http.Request, error) {
 	var contentType string = "multipart/form-data"
 	var buf bytes.Buffer
-	if body != nil && len(body) > 0 {
+	if len(body) > 0 {
 		w := multipart.NewWriter(&buf)
 		for key, value := range body {
 			if _, ok := value.(io.Reader); ok {
