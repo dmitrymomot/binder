@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strings"
@@ -78,44 +77,6 @@ func newFormRequest(method, endpoint string, body map[string]interface{}, header
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	for key, value := range headers {
-		req.Header.Set(key, value)
-	}
-
-	return req, nil
-}
-
-// new multipart request with body and headers
-func newMultipartRequest(method, url string, body map[string]interface{}, headers map[string]string) (*http.Request, error) {
-	var contentType string = "multipart/form-data"
-	var buf bytes.Buffer
-	if len(body) > 0 {
-		w := multipart.NewWriter(&buf)
-		for key, value := range body {
-			if _, ok := value.(io.Reader); ok {
-				if fw, err := w.CreateFormFile(key, key); err != nil {
-					return nil, err
-				} else if _, err := io.Copy(fw, value.(io.Reader)); err != nil {
-					return nil, err
-				}
-			} else {
-				if err := w.WriteField(key, fmt.Sprintf("%v", value)); err != nil {
-					return nil, err
-				}
-			}
-		}
-		if err := w.Close(); err != nil {
-			return nil, err
-		}
-		contentType = w.FormDataContentType()
-	}
-
-	req, err := http.NewRequest(method, url, &buf)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Content-Type", contentType)
 	for key, value := range headers {
 		req.Header.Set(key, value)
 	}
