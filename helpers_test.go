@@ -83,29 +83,3 @@ func newFormRequest(method, endpoint string, body map[string]interface{}, header
 
 	return req, nil
 }
-
-// new multipart request with body and headers
-// func newMultipartRequest(method, url string, body map[string]interface{}, headers map[string]string) (*http.Request, error) {
-// 	var buf bytes.Buffer
-// 	w := multipart.NewWriter(&buf)
-// 	for key, value := range body {
-// 		if err := w.WriteField(key, fmt.Sprintf("%v", value)); err != nil {
-// 			return nil, err
-// 		}
-// 	}
-// 	if err := w.Close(); err != nil {
-// 		return nil, err
-// 	}
-
-// 	req, err := http.NewRequest(method, url, &buf)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	req.Header.Set("Content-Type", w.FormDataContentType())
-// 	for key, value := range headers {
-// 		req.Header.Set(key, value)
-// 	}
-
-// 	return req, nil
-// }

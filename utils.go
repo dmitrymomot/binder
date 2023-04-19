@@ -2,6 +2,7 @@ package binder
 
 import (
 	"net/http"
+	"reflect"
 	"strings"
 )
 
@@ -28,4 +29,13 @@ func isMultipartFormData(r *http.Request) bool {
 // check if the request content type is json
 func isJSON(r *http.Request) bool {
 	return strings.HasPrefix(r.Header.Get("Content-Type"), "application/json")
+}
+
+// check if the passed value is a pointer
+func isPointer(v interface{}) bool {
+	if v == nil {
+		return false
+	}
+	t := reflect.TypeOf(v)
+	return t.Kind() == reflect.Ptr && t.Elem().Kind() == reflect.Struct
 }

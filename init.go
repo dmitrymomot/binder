@@ -18,6 +18,8 @@ func init() {
 	formDecoder.IgnoreUnknownKeys(true)
 	formDecoder.ZeroEmpty(true)
 	formDecoder.SetAliasTag(TagForm)
+	formDecoder.RegisterConverter(FileData{}, FileDataConverter)
+	formDecoder.RegisterConverter(&FileData{}, FileDataConverterPtr)
 
 	queryDecoder.IgnoreUnknownKeys(true)
 	queryDecoder.ZeroEmpty(true)

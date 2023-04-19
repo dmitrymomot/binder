@@ -61,7 +61,7 @@ func TestBindForm(t *testing.T) {
 		}
 	})
 
-	t.Run("decode form error", func(t *testing.T) {
+	t.Run("invalid input", func(t *testing.T) {
 		req, err := newFormRequest(http.MethodPost, "/path", payload, nil)
 		if err != nil {
 			t.Errorf("unexpected error: %s", err.Error())
@@ -69,8 +69,8 @@ func TestBindForm(t *testing.T) {
 
 		var obj objPayload
 		err = binder.BindForm(req, obj)
-		if !errors.Is(err, binder.ErrDecodeForm) {
-			t.Errorf("expected error '%s', got '%s'", binder.ErrDecodeForm, err)
+		if !errors.Is(err, binder.ErrInvalidInput) {
+			t.Errorf("expected error '%s', got '%s'", binder.ErrInvalidInput, err)
 		}
 	})
 
