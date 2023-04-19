@@ -3,7 +3,7 @@ package binder
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -147,7 +147,7 @@ func BindFormMultipart(r *http.Request, v interface{}) error {
 		// Bind file data
 		if formFile, header, err := r.FormFile(tag); err == nil {
 			defer formFile.Close()
-			fileData, err := ioutil.ReadAll(formFile)
+			fileData, err := io.ReadAll(formFile)
 			if err != nil {
 				return err
 			}
