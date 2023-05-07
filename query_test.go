@@ -89,4 +89,44 @@ func TestBindQuery(t *testing.T) {
 			t.Errorf("expected %v, got %v", binder.ErrDecodeQuery, err)
 		}
 	})
+
+	// Test the successful case where the one of the fields in the struct is a custom type.
+	t.Run("custom type", func(t *testing.T) {
+		// A custom type
+		type CustomInt int
+		type CustomString string
+
+		// A test struct with query tags
+		type RequestBody struct {
+			FieldOne CustomString `query:"field_one"`
+			FieldTwo CustomInt    `query:"field_two"`
+		}
+
+		// Initialize a dummy request payload
+		payload := map[string]interface{}{
+			"field_one": "value",
+			"field_two": 123,
+		}
+
+		// Create a new query request with the test payload.
+		req, err := newQueryRequest(http.MethodGet, "/", payload, nil)
+		if err != nil {
+			t.Errorf("unexpected error: %s", err.Error())
+		}
+
+		// Call BindQuery with the test request and a pointer to a RequestBody struct.
+		var obj RequestBody
+		err = binder.BindQuery(req, &obj)
+		if err != nil {
+			t.Errorf("unexpected error: %s", err.Error())
+		}
+
+		// Check that the struct was populated with the expected values.
+		if obj.FieldOne != CustomString("value") {
+			t.Errorf("FieldOne is %q, expected %q", obj.FieldOne, "value")
+		}
+		if obj.FieldTwo != CustomInt(123) {
+			t.Errorf("FieldTwo is %d, expected %d", obj.FieldTwo, 123)
+		}
+	})
 }

@@ -114,4 +114,38 @@ func TestBindJSON(t *testing.T) {
 			t.Errorf("BindJSON() obj = %v, want %v", obj, payload)
 		}
 	})
+
+	// Test the successful case where the one of the fields in the struct is a custom type.
+	t.Run("custom type", func(t *testing.T) {
+		// A custom type
+		type CustomInt int
+		type CustomString string
+
+		// A test struct with json tags
+		type RequestBody struct {
+			FieldOne CustomString `json:"field_one"`
+			FieldTwo CustomInt    `json:"field_two"`
+		}
+
+		// Create a new request with the JSON payload as the body
+		req, err := newJSONRequest(http.MethodPost, "/", payload, map[string]string{
+			"Content-Type": "application/json",
+		})
+		if err != nil {
+			t.Errorf("unexpected error: %s", err.Error())
+		}
+
+		// Create an empty struct to be used as the obj parameter in the BindJSON call
+		obj := &RequestBody{}
+
+		// Call the BindJSON function to populate the obj struct with the request data
+		if err := binder.BindJSON(req, obj); err != nil {
+			t.Errorf("BindJSON() error = %v, wantErr nil", err)
+		}
+
+		// Check that the obj struct was populated correctly
+		if obj.FieldOne != CustomString("value") || obj.FieldTwo != CustomInt(123) {
+			t.Errorf("BindJSON() obj = %v, want %v", obj, payload)
+		}
+	})
 }
