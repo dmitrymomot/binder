@@ -1,6 +1,7 @@
 package binder
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -17,7 +18,7 @@ func BindQuery(r *http.Request, v interface{}) error {
 
 	// Validate v pointer before decoding query into it
 	if !isPointer(v) {
-		return fmt.Errorf("%w: v must be a pointer to a struct", ErrInvalidInput)
+		return errors.Join(ErrInvalidInput, ErrTargetMustBeAPointer)
 	}
 
 	// Check if the request query is empty
@@ -27,7 +28,7 @@ func BindQuery(r *http.Request, v interface{}) error {
 
 	// Decode the request query into the v pointer and handle decoding errors
 	if err := queryDecoder.Decode(v, r.URL.Query()); err != nil {
-		return fmt.Errorf("%w: %s", ErrDecodeQuery, err.Error())
+		return errors.Join(ErrDecodeQuery, err)
 	}
 
 	return nil

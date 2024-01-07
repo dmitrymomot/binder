@@ -2,6 +2,7 @@ package binder
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -23,7 +24,7 @@ func BindJSON(r *http.Request, v interface{}) error {
 
 	// Validate v pointer before decoding query into it
 	if !isPointer(v) {
-		return fmt.Errorf("%w: v must be a pointer to a struct", ErrInvalidInput)
+		return errors.Join(ErrInvalidInput, ErrTargetMustBeAPointer)
 	}
 
 	// Check if the request body is empty
@@ -33,7 +34,7 @@ func BindJSON(r *http.Request, v interface{}) error {
 
 	// Decode the request body into the v pointer
 	if err := json.NewDecoder(r.Body).Decode(v); err != nil {
-		return err
+		return errors.Join(ErrDecodeJSON, err)
 	}
 
 	return nil

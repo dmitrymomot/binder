@@ -1,6 +1,7 @@
 package binder
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -22,7 +23,7 @@ func BindForm(r *http.Request, v interface{}) error {
 
 	// Validate v pointer before decoding query into it
 	if !isPointer(v) {
-		return fmt.Errorf("%w: v must be a pointer to a struct", ErrInvalidInput)
+		return errors.Join(ErrInvalidInput, ErrTargetMustBeAPointer)
 	}
 
 	// Check if the request body is empty
@@ -32,12 +33,12 @@ func BindForm(r *http.Request, v interface{}) error {
 
 	// Parse the request body
 	if err := r.ParseForm(); err != nil {
-		return fmt.Errorf("%w: %s", ErrParseForm, err.Error())
+		return errors.Join(ErrParseForm, err)
 	}
 
 	// Decode the request body into the v pointer
 	if err := formDecoder.Decode(v, r.PostForm); err != nil {
-		return fmt.Errorf("%w: %s", ErrDecodeForm, err.Error())
+		return errors.Join(ErrDecodeForm, err)
 	}
 
 	return nil

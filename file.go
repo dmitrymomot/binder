@@ -1,7 +1,7 @@
 package binder
 
 import (
-	"fmt"
+	"errors"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -28,20 +28,20 @@ func GetFileData(req *http.Request, fieldName string) (*FileData, error) {
 	// Parse the multipart form data.
 	err := req.ParseMultipartForm(32 << 20) // MaxMemory is 32MB
 	if err != nil {
-		return nil, fmt.Errorf("%w: %s", ErrParseForm, err.Error())
+		return nil, errors.Join(ErrParseForm, err)
 	}
 
 	// Get the file from the request.
 	file, fileHeader, err := req.FormFile(fieldName)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %s", ErrGetFile, err.Error())
+		return nil, errors.Join(ErrGetFile, err)
 	}
 	defer file.Close()
 
 	// Read the file data into memory.
 	data, err := io.ReadAll(file)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %s", ErrReadFile, err.Error())
+		return nil, errors.Join(ErrReadFile, err)
 	}
 
 	// Get the MIME type of the file.
@@ -64,14 +64,14 @@ func GetFileDataFromMultipartFileHeader(header *multipart.FileHeader) (*FileData
 	// Open the file.
 	file, err := header.Open()
 	if err != nil {
-		return nil, fmt.Errorf("%w: %s", ErrGetFile, err.Error())
+		return nil, errors.Join(ErrGetFile, err)
 	}
 	defer file.Close()
 
 	// Read the file data into memory.
 	data, err := io.ReadAll(file)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %s", ErrReadFile, err.Error())
+		return nil, errors.Join(ErrReadFile, err)
 	}
 
 	// Get the MIME type of the file.
@@ -93,12 +93,12 @@ func GetFileDataFromMultipartFileHeader(header *multipart.FileHeader) (*FileData
 // github.com/gabriel-vasile/mimetype package.
 func GetFileMimeType(input []byte) (string, error) {
 	if input == nil {
-		return "", fmt.Errorf("%w: input is nil", ErrGetFileMimeType)
+		return "", errors.Join(ErrGetFileMimeType, ErrInputIsNil)
 	}
 
 	mtype := mimetype.Detect(input)
 	if mtype == nil {
-		return "", fmt.Errorf("%w: unknown MIME type", ErrGetFileMimeType)
+		return "", errors.Join(ErrGetFileMimeType, ErrUnsupportedType)
 	}
 
 	parts := strings.Split(mtype.String(), ";")

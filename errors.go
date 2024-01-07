@@ -18,4 +18,6 @@ var (
 	ErrUnsupportedType      = errors.New("unsupported type")
 	ErrTargetMustBeAPointer = errors.New("target must be a pointer")
 	ErrTargetMustBeAStruct  = errors.New("target must be a struct")
+	ErrInputIsNil           = errors.New("input is nil")
+	ErrDecodeJSON           = errors.New("failed to decode json")
 )

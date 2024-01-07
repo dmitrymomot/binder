@@ -2,6 +2,7 @@ package binder
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -39,7 +40,7 @@ func BindFormMultipart(r *http.Request, v interface{}) error {
 
 	// Parse the request body
 	if err := r.ParseMultipartForm(MultiPartFormMaxMemory); err != nil {
-		return fmt.Errorf("%w: %s", ErrParseForm, err.Error())
+		return errors.Join(ErrParseForm, err)
 	}
 
 	// Check if the request body is empty

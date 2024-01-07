@@ -1,11 +1,11 @@
 package binder_test
 
 import (
-	"errors"
 	"net/http"
 	"testing"
 
 	"github.com/dmitrymomot/binder"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBindJSON(t *testing.T) {
@@ -24,13 +24,11 @@ func TestBindJSON(t *testing.T) {
 	// Test the scenario where the request method is not POST, PUT or PATCH
 	t.Run("invalid method", func(t *testing.T) {
 		req, err := newQueryRequest(http.MethodGet, "/", payload, nil)
-		if err != nil {
-			t.Errorf("unexpected error: %s", err.Error())
-		}
+		require.NoError(t, err)
 
-		if err := binder.BindJSON(req, nil); err == nil || !errors.Is(err, binder.ErrInvalidMethod) {
-			t.Errorf("BindJSON() error = %v, wantErr %v", err, binder.ErrInvalidMethod)
-		}
+		err = binder.BindJSON(req, nil)
+		require.Error(t, err)
+		require.ErrorIs(t, err, binder.ErrInvalidMethod)
 	})
 
 	// Test the scenario where the request content type is not JSON
@@ -38,13 +36,11 @@ func TestBindJSON(t *testing.T) {
 		req, err := newFormRequest(http.MethodPost, "/", payload, map[string]string{
 			"Content-Type": "application/xml",
 		})
-		if err != nil {
-			t.Errorf("unexpected error: %s", err.Error())
-		}
+		require.NoError(t, err)
 
-		if err := binder.BindJSON(req, nil); err == nil || !errors.Is(err, binder.ErrInvalidContentType) {
-			t.Errorf("BindJSON() error = %v, wantErr %v", err, binder.ErrInvalidContentType)
-		}
+		err = binder.BindJSON(req, nil)
+		require.Error(t, err)
+		require.ErrorIs(t, err, binder.ErrInvalidContentType)
 	})
 
 	// Test the scenario where the request body is empty
@@ -52,14 +48,12 @@ func TestBindJSON(t *testing.T) {
 		req, err := newJSONRequest(http.MethodPost, "/", nil, map[string]string{
 			"Content-Type": "application/json",
 		})
-		if err != nil {
-			t.Errorf("unexpected error: %s", err.Error())
-		}
+		require.NoError(t, err)
 
 		var invalidValue interface{}
-		if err := binder.BindJSON(req, &invalidValue); err == nil || !errors.Is(err, binder.ErrInvalidInput) {
-			t.Errorf("BindJSON() error = %v, wantErr %v", err, binder.ErrInvalidInput)
-		}
+		err = binder.BindJSON(req, &invalidValue)
+		require.Error(t, err)
+		require.ErrorIs(t, err, binder.ErrInvalidInput)
 	})
 
 	// Test the scenario where the request body is empty
@@ -67,13 +61,11 @@ func TestBindJSON(t *testing.T) {
 		req, err := newJSONRequest(http.MethodPost, "/", nil, map[string]string{
 			"Content-Type": "application/json",
 		})
-		if err != nil {
-			t.Errorf("unexpected error: %s", err.Error())
-		}
+		require.NoError(t, err)
 
-		if err := binder.BindJSON(req, &RequestBody{}); err == nil || !errors.Is(err, binder.ErrEmptyBody) {
-			t.Errorf("BindJSON() error = %v, wantErr %v", err, binder.ErrEmptyBody)
-		}
+		err = binder.BindJSON(req, &RequestBody{})
+		require.Error(t, err)
+		require.ErrorIs(t, err, binder.ErrEmptyBody)
 	})
 
 	// Test the scenario where the decoding of the request body into the obj pointer fails
@@ -82,13 +74,11 @@ func TestBindJSON(t *testing.T) {
 		req, err := newJSONRequest(http.MethodPost, "/", payload, map[string]string{
 			"Content-Type": "application/json",
 		})
-		if err != nil {
-			t.Errorf("unexpected error: %s", err.Error())
-		}
+		require.NoError(t, err)
 
-		if err := binder.BindJSON(req, "invalid object"); err == nil {
-			t.Error("BindJSON() error = nil, wantErr non-nil")
-		}
+		err = binder.BindJSON(req, "invalid object")
+		require.Error(t, err)
+		require.ErrorIs(t, err, binder.ErrInvalidInput)
 	})
 
 	// Test the successful case where the request method is POST, PUT or PATCH and the content type is JSON.
@@ -97,22 +87,18 @@ func TestBindJSON(t *testing.T) {
 		req, err := newJSONRequest(http.MethodPost, "/", payload, map[string]string{
 			"Content-Type": "application/json",
 		})
-		if err != nil {
-			t.Errorf("unexpected error: %s", err.Error())
-		}
+		require.NoError(t, err)
 
 		// Create an empty struct to be used as the obj parameter in the BindJSON call
 		obj := &RequestBody{}
 
 		// Call the BindJSON function to populate the obj struct with the request data
-		if err := binder.BindJSON(req, obj); err != nil {
-			t.Errorf("BindJSON() error = %v, wantErr nil", err)
-		}
+		err = binder.BindJSON(req, obj)
+		require.NoError(t, err)
 
 		// Check that the obj struct was populated correctly
-		if obj.FieldOne != "value" || obj.FieldTwo != 123 {
-			t.Errorf("BindJSON() obj = %v, want %v", obj, payload)
-		}
+		require.Equal(t, "value", obj.FieldOne)
+		require.Equal(t, 123, obj.FieldTwo)
 	})
 
 	// Test the successful case where the one of the fields in the struct is a custom type.
@@ -131,21 +117,17 @@ func TestBindJSON(t *testing.T) {
 		req, err := newJSONRequest(http.MethodPost, "/", payload, map[string]string{
 			"Content-Type": "application/json",
 		})
-		if err != nil {
-			t.Errorf("unexpected error: %s", err.Error())
-		}
+		require.NoError(t, err)
 
 		// Create an empty struct to be used as the obj parameter in the BindJSON call
 		obj := &RequestBody{}
 
 		// Call the BindJSON function to populate the obj struct with the request data
-		if err := binder.BindJSON(req, obj); err != nil {
-			t.Errorf("BindJSON() error = %v, wantErr nil", err)
-		}
+		err = binder.BindJSON(req, obj)
+		require.NoError(t, err)
 
 		// Check that the obj struct was populated correctly
-		if obj.FieldOne != CustomString("value") || obj.FieldTwo != CustomInt(123) {
-			t.Errorf("BindJSON() obj = %v, want %v", obj, payload)
-		}
+		require.Equal(t, CustomString("value"), obj.FieldOne)
+		require.Equal(t, CustomInt(123), obj.FieldTwo)
 	})
 }

@@ -15,4 +15,4 @@ const (
 // MultiPartFormMaxMemory is the maximum amount of memory to use when parsing a multipart form.
 // It is passed to http.Request.ParseMultipartForm.
 // Default value is 32 << 20 (32 MB).
-const MultiPartFormMaxMemory int64 = 32 << 20
+var MultiPartFormMaxMemory int64 = 32 << 20

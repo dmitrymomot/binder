@@ -1,11 +1,11 @@
 package binder_test
 
 import (
-	"errors"
 	"net/http"
 	"testing"
 
 	"github.com/dmitrymomot/binder"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBindQuery(t *testing.T) {
@@ -21,41 +21,34 @@ func TestBindQuery(t *testing.T) {
 			"name": "john",
 			"paid": true,
 		}, nil)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
+		require.NoError(t, err)
 
 		var user User
-		if err := binder.BindQuery(req, &user); err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
-		if user.ID != 42 || user.Name != "john" || !user.IsPaid {
-			t.Errorf("unexpected result: %+v", user)
-		}
+		err = binder.BindQuery(req, &user)
+		require.NoError(t, err)
+		require.Equal(t, 42, user.ID)
+		require.Equal(t, "john", user.Name)
+		require.Equal(t, true, user.IsPaid)
 	})
 
 	t.Run("invalid method", func(t *testing.T) {
 		req, err := newQueryRequest(http.MethodPost, "/users", map[string]interface{}{}, nil)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
+		require.NoError(t, err)
 
 		var user User
-		if err := binder.BindQuery(req, &user); !errors.Is(err, binder.ErrInvalidMethod) {
-			t.Errorf("expected %v, got %v", binder.ErrInvalidMethod, err)
-		}
+		err = binder.BindQuery(req, &user)
+		require.Error(t, err)
+		require.ErrorIs(t, err, binder.ErrInvalidMethod)
 	})
 
 	t.Run("empty query", func(t *testing.T) {
 		req, err := newQueryRequest(http.MethodGet, "/users", map[string]interface{}{}, nil)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
+		require.NoError(t, err)
 
 		var user User
-		if err := binder.BindQuery(req, &user); !errors.Is(err, binder.ErrEmptyQuery) {
-			t.Errorf("expected %v, got %v", binder.ErrEmptyQuery, err)
-		}
+		err = binder.BindQuery(req, &user)
+		require.Error(t, err)
+		require.ErrorIs(t, err, binder.ErrEmptyQuery)
 	})
 
 	t.Run("invalid input", func(t *testing.T) {
@@ -64,14 +57,12 @@ func TestBindQuery(t *testing.T) {
 			"name": "john",
 			"paid": true,
 		}, nil)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
+		require.NoError(t, err)
 
 		var user User
-		if err := binder.BindQuery(req, user); !errors.Is(err, binder.ErrInvalidInput) {
-			t.Errorf("expected %v, got %v", binder.ErrInvalidInput, err)
-		}
+		err = binder.BindQuery(req, user)
+		require.Error(t, err)
+		require.ErrorIs(t, err, binder.ErrInvalidInput)
 	})
 
 	t.Run("decode error", func(t *testing.T) {
@@ -80,14 +71,12 @@ func TestBindQuery(t *testing.T) {
 			"name": "john",
 			"paid": "invalid value",
 		}, nil)
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
-		}
+		require.NoError(t, err)
 
 		var user User
-		if err := binder.BindQuery(req, &user); !errors.Is(err, binder.ErrDecodeQuery) {
-			t.Errorf("expected %v, got %v", binder.ErrDecodeQuery, err)
-		}
+		err = binder.BindQuery(req, &user)
+		require.Error(t, err)
+		require.ErrorIs(t, err, binder.ErrDecodeQuery)
 	})
 
 	// Test the successful case where the one of the fields in the struct is a custom type.
@@ -110,23 +99,15 @@ func TestBindQuery(t *testing.T) {
 
 		// Create a new query request with the test payload.
 		req, err := newQueryRequest(http.MethodGet, "/", payload, nil)
-		if err != nil {
-			t.Errorf("unexpected error: %s", err.Error())
-		}
+		require.NoError(t, err)
 
 		// Call BindQuery with the test request and a pointer to a RequestBody struct.
 		var obj RequestBody
 		err = binder.BindQuery(req, &obj)
-		if err != nil {
-			t.Errorf("unexpected error: %s", err.Error())
-		}
+		require.NoError(t, err)
 
 		// Check that the struct was populated with the expected values.
-		if obj.FieldOne != CustomString("value") {
-			t.Errorf("FieldOne is %q, expected %q", obj.FieldOne, "value")
-		}
-		if obj.FieldTwo != CustomInt(123) {
-			t.Errorf("FieldTwo is %d, expected %d", obj.FieldTwo, 123)
-		}
+		require.Equal(t, CustomString("value"), obj.FieldOne)
+		require.Equal(t, CustomInt(123), obj.FieldTwo)
 	})
 }

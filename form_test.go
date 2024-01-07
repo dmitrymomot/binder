@@ -1,11 +1,11 @@
 package binder_test
 
 import (
-	"errors"
 	"net/http"
 	"testing"
 
 	"github.com/dmitrymomot/binder"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBindForm(t *testing.T) {
@@ -22,75 +22,63 @@ func TestBindForm(t *testing.T) {
 
 	t.Run("invalid method", func(t *testing.T) {
 		req, err := newQueryRequest(http.MethodGet, "/path", nil, nil)
-		if err != nil {
-			t.Errorf("unexpected error: %s", err.Error())
-		}
+		require.NoError(t, err)
 
 		var obj objPayload
 		err = binder.BindForm(req, &obj)
-
-		if !errors.Is(err, binder.ErrInvalidMethod) {
-			t.Errorf("expected error '%s', got '%s'", binder.ErrInvalidMethod, err)
-		}
+		require.Error(t, err)
+		require.ErrorIs(t, err, binder.ErrInvalidMethod)
 	})
 
 	t.Run("invalid content type", func(t *testing.T) {
 		req, err := newJSONRequest(http.MethodPost, "/path", payload, nil)
-		if err != nil {
-			t.Errorf("unexpected error: %s", err.Error())
-		}
+		require.NoError(t, err)
 
 		var obj objPayload
 		err = binder.BindForm(req, &obj)
-
-		if !errors.Is(err, binder.ErrInvalidContentType) {
-			t.Errorf("expected error '%s', got '%s'", binder.ErrInvalidContentType, err)
-		}
+		require.Error(t, err)
+		require.ErrorIs(t, err, binder.ErrInvalidContentType)
 	})
 
 	t.Run("empty body", func(t *testing.T) {
 		req, err := newFormRequest(http.MethodPost, "/path", nil, nil)
-		if err != nil {
-			t.Errorf("unexpected error: %s", err.Error())
-		}
+		require.NoError(t, err)
 
 		var obj objPayload
 		err = binder.BindForm(req, &obj)
-		if !errors.Is(err, binder.ErrEmptyBody) {
-			t.Errorf("expected error '%s', got '%s'", binder.ErrEmptyBody, err)
-		}
+		require.Error(t, err)
+		require.ErrorIs(t, err, binder.ErrEmptyBody)
 	})
 
 	t.Run("invalid input", func(t *testing.T) {
 		req, err := newFormRequest(http.MethodPost, "/path", payload, nil)
-		if err != nil {
-			t.Errorf("unexpected error: %s", err.Error())
-		}
+		require.NoError(t, err)
 
 		var obj objPayload
 		err = binder.BindForm(req, obj)
-		if !errors.Is(err, binder.ErrInvalidInput) {
-			t.Errorf("expected error '%s', got '%s'", binder.ErrInvalidInput, err)
-		}
+		require.Error(t, err)
+		require.ErrorIs(t, err, binder.ErrInvalidInput)
 	})
 
 	t.Run("success", func(t *testing.T) {
 		req, err := newFormRequest(http.MethodPost, "/path", payload, nil)
-		if err != nil {
-			t.Errorf("unexpected error: %s", err.Error())
-		}
+		require.NoError(t, err)
 
 		var obj objPayload
 		err = binder.BindForm(req, &obj)
-		if err != nil {
-			t.Errorf("unexpected error: %s", err.Error())
-		}
+		require.NoError(t, err)
+		require.Equal(t, "value", obj.FieldOne)
+		require.Equal(t, 123, obj.FieldTwo)
+	})
 
-		if obj.FieldOne != "value" {
-			t.Errorf("expected 'value', got '%s'", obj.FieldOne)
-		}
-		if obj.FieldTwo != 123 {
-			t.Errorf("expected 123, got %d", obj.FieldTwo)
-		}
+	t.Run("success with empty payload", func(t *testing.T) {
+		req, err := newFormRequest(http.MethodPost, "/path", map[string]interface{}{}, nil)
+		require.NoError(t, err)
+
+		var obj objPayload
+		err = binder.BindForm(req, &obj)
+		require.NoError(t, err)
+		require.Equal(t, "", obj.FieldOne)
+		require.Equal(t, 0, obj.FieldTwo)
 	})
 }

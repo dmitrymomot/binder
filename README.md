@@ -17,7 +17,7 @@ HTTP request data binder.
 - [x] Bind JSON body to struct fields
 - [x] Get file from multipart form
 - [x] Bind multipart form values to struct fields (limited support, see [supported types](#supported-types))
-- [ ] Binder interface implementation
+- [x] Binder interface implementation
 
 ### Supported types
 
