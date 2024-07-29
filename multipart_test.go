@@ -10,9 +10,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/dmitrymomot/binder"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/dmitrymomot/binder"
 )
 
 type FormData struct {
@@ -48,7 +49,9 @@ func TestBindFormMultipart(t *testing.T) {
 				if err != nil {
 					return err
 				}
-				defer file.Close()
+				defer func(file *os.File) {
+					_ = file.Close()
+				}(file)
 
 				part, err := w.CreateFormFile("avatar", filepath.Base(filePath))
 				if err != nil {

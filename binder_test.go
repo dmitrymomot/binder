@@ -7,8 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dmitrymomot/binder"
 	"github.com/stretchr/testify/require"
+
+	"github.com/dmitrymomot/binder"
 )
 
 func TestBindFunc(t *testing.T) {

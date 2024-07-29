@@ -7,8 +7,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/dmitrymomot/binder"
 	"github.com/stretchr/testify/require"
+
+	"github.com/dmitrymomot/binder"
 )
 
 func TestGetFileData(t *testing.T) {

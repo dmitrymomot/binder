@@ -36,7 +36,9 @@ func GetFileData(req *http.Request, fieldName string) (*FileData, error) {
 	if err != nil {
 		return nil, errors.Join(ErrGetFile, err)
 	}
-	defer file.Close()
+	defer func(file multipart.File) {
+		_ = file.Close()
+	}(file)
 
 	// Read the file data into memory.
 	data, err := io.ReadAll(file)
@@ -66,7 +68,9 @@ func GetFileDataFromMultipartFileHeader(header *multipart.FileHeader) (*FileData
 	if err != nil {
 		return nil, errors.Join(ErrGetFile, err)
 	}
-	defer file.Close()
+	defer func(file multipart.File) {
+		_ = file.Close()
+	}(file)
 
 	// Read the file data into memory.
 	data, err := io.ReadAll(file)

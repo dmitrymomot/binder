@@ -41,7 +41,9 @@ func newJSONRequest(method, url string, body interface{}, headers map[string]str
 }
 
 // new query request with headers
-func newQueryRequest(method, url string, query map[string]interface{}, headers map[string]string) (*http.Request, error) {
+func newQueryRequest(method, url string, query map[string]interface{}, headers map[string]string) (
+	*http.Request, error,
+) {
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return nil, err
@@ -61,7 +63,9 @@ func newQueryRequest(method, url string, query map[string]interface{}, headers m
 }
 
 // new form-urlencoded request with body and headers
-func newFormRequest(method, endpoint string, body map[string]interface{}, headers map[string]string) (*http.Request, error) {
+func newFormRequest(method, endpoint string, body map[string]interface{}, headers map[string]string) (
+	*http.Request, error,
+) {
 	var reqBody io.Reader
 	if body != nil {
 		q := url.Values{}

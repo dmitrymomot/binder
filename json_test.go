@@ -4,8 +4,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/dmitrymomot/binder"
 	"github.com/stretchr/testify/require"
+
+	"github.com/dmitrymomot/binder"
 )
 
 func TestBindJSON(t *testing.T) {
