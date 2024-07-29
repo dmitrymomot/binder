@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -146,27 +147,7 @@ func BindFormMultipart(r *http.Request, v interface{}) error {
 		}
 
 		// Bind file data
-		if formFile, header, err := r.FormFile(tag); err == nil {
-			defer formFile.Close()
-			fileData, err := io.ReadAll(formFile)
-			if err != nil {
-				return err
-			}
-
-			// Get the file mime type
-			mime, err := GetFileMimeType(fileData)
-			if err != nil {
-				return err
-			}
-
-			// Create a new File struct
-			fileStruct := &File{
-				FileName:    header.Filename,
-				FileSize:    header.Size,
-				ContentType: mime,
-				Data:        fileData,
-			}
-
+		if fileStruct, err := bindFormFile(r, tag); fileStruct != nil && err == nil {
 			// Marshal the File struct to JSON
 			jsonBytes, err := json.Marshal(fileStruct)
 			if err != nil {
@@ -182,10 +163,41 @@ func BindFormMultipart(r *http.Request, v interface{}) error {
 					if err != nil {
 						return err
 					}
+				default:
+					// skip if the field is not a binder.File or *binder.File
 				}
 			}
 		}
 	}
 
 	return nil
+}
+
+func bindFormFile(r *http.Request, tag string) (*File, error) {
+	if formFile, header, err := r.FormFile(tag); err == nil {
+		defer func(formFile multipart.File) {
+			_ = formFile.Close()
+		}(formFile)
+		fileData, err := io.ReadAll(formFile)
+		if err != nil {
+			return nil, err
+		}
+
+		// Get the file mime type
+		mime, err := GetFileMimeType(fileData)
+		if err != nil {
+			return nil, err
+		}
+
+		// Create a new File struct
+		fileStruct := &File{
+			FileName:    header.Filename,
+			FileSize:    header.Size,
+			ContentType: mime,
+			Data:        fileData,
+		}
+
+		return fileStruct, nil
+	}
+	return nil, nil
 }

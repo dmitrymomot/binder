@@ -13,9 +13,6 @@ type Binder interface {
 	Bind(r *http.Request, v interface{}) error
 }
 
-// BinderFunc is the function type that implements the Binder interface.
-type BinderFunc func(*http.Request, interface{}) error
-
 // DefaultBinder is the default implementation of the Binder interface.
 type DefaultBinder struct{}
 

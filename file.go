@@ -62,6 +62,8 @@ func GetFileData(req *http.Request, fieldName string) (*FileData, error) {
 }
 
 // GetFileDataFromMultipartFileHeader extracts file data from a multipart file header.
+//
+//goland:noinspection GoUnusedExportedFunction
 func GetFileDataFromMultipartFileHeader(header *multipart.FileHeader) (*FileData, error) {
 	// Open the file.
 	file, err := header.Open()

@@ -2,14 +2,10 @@ package binder
 
 // Default tag names for binding
 const (
-	// JSON struct tag name for binding
-	TagJSON = "json"
-	// Form struct tag name for binding
+	// TagForm Form struct tag name for binding
 	TagForm = "form"
-	// Query struct tag name for binding
+	// TagQuery Query struct tag name for binding
 	TagQuery = "query"
-	// Header struct tag name for binding
-	TagHeader = "header"
 )
 
 // MultiPartFormMaxMemory is the maximum amount of memory to use when parsing a multipart form.
